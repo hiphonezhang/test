@@ -1,0 +1,31 @@
+#include <Ethernet_STM32.h>
+#include <SPI.h>
+#include <SD.h>
+
+Sd2Card card;
+SdVolume volume;
+SdFile root;
+
+const int chipSelect = 4;
+
+byte *id5 =  (byte *) (0x1FFFF7EC);
+byte *id4 =  (byte *) (0x1FFFF7EC+0x01);
+byte *id3 =  (byte *) (0x1FFFF7EC+0x02);
+byte *id2 =  (byte *) (0x1FFFF7EC+0x03);
+byte *id1 =  (byte *) (0x1FFFF7EC+0x04);
+byte mac[] = { 0xEA, *id1, *id2, *id3, *id4, *id5 };
+
+unsigned int localPort = 8000;                          
+EthernetServer server(localPort);
+SPIClass mSpi(2); //USING SPI2 PB12-PB15
+
+void setup() 
+{
+  Serial.begin(115200);  
+  delay(3000);
+  Ethernet.init(mSpi, PB12);  
+  Ethernet.begin(mac);
+  Serial.print("IP Address assigned ");
+  Serial.println(Ethernet.localIP());
+  server.begin();
+}
